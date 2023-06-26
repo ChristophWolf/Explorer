@@ -1,10 +1,13 @@
 <?php
+
 declare(strict_types=1);
 
 namespace JeroenG\Explorer\Tests\Unit;
 
-use Elasticsearch\ClientBuilder;
-use Elasticsearch\ConnectionPool\Selectors\StickyRoundRobinSelector;
+use Elastic\Elasticsearch\ClientBuilder;
+use Elastic\Transport\NodePool\Resurrect\ElasticsearchResurrect;
+use Elastic\Transport\NodePool\Selector\RoundRobin;
+use Elastic\Transport\NodePool\SimpleNodePool;
 use Illuminate\Container\Container;
 use JeroenG\Explorer\Infrastructure\Elastic\ElasticClientBuilder;
 use JeroenG\Explorer\Tests\Support\ConfigRepository;
@@ -14,15 +17,15 @@ final class ElasticClientBuilderTest extends MockeryTestCase
 {
     private const CLOUD_ID = 'staging:dXMtZWFzdC0xLmF3cy5mb3VuZC5pbyRjZWM2ZjI2MWE3NGJmMjRjZTMzYmI4ODExYjg0Mjk0ZiRjNmMyY2E2ZDA0MjI0OWFmMGNjN2Q3YTllOTYyNTc0Mw';
 
-    private const CONNECTION = [ 'host' => 'example.com', 'port' => '9222', 'scheme' => 'https' ];
+    private const CONNECTION = ['host' => 'example.com', 'port' => '9222', 'scheme' => 'https'];
 
     /** @dataProvider provideClientConfigs */
-    public function test_it_creates_client_with_config(array $config, ClientBuilder $expectedBuilder): void
+    public function testCreateClientWithConfig(array $config, ClientBuilder $expectedBuilder): void
     {
-        $configRepository = new ConfigRepository([ 'explorer' => $config ]);
+        $configRepository = new ConfigRepository(['explorer' => $config]);
         Container::getInstance()->instance('config', $configRepository);
 
-        $resultBuilder  = ElasticClientBuilder::fromConfig($configRepository);
+        $resultBuilder = ElasticClientBuilder::fromConfig($configRepository);
 
         self::assertEquals($expectedBuilder, $resultBuilder);
     }
@@ -37,7 +40,7 @@ final class ElasticClientBuilderTest extends MockeryTestCase
                 ->setHosts([self::CONNECTION])
         ];
 
-         yield 'elastic cloud id' => [
+        yield 'elastic cloud id' => [
             [
                 'connection' => [
                     'elasticCloudId' => self::CLOUD_ID
@@ -47,7 +50,7 @@ final class ElasticClientBuilderTest extends MockeryTestCase
                 ->setElasticCloudId(self::CLOUD_ID)
         ];
 
-         yield 'with auth' => [
+        yield 'with auth' => [
             [
                 'connection' => array_merge([
                     'auth' => [
@@ -61,7 +64,7 @@ final class ElasticClientBuilderTest extends MockeryTestCase
                 ->setBasicAuthentication('myName', 'myPassword'),
         ];
 
-         yield 'with api key' => [
+        yield 'with api key' => [
             [
                 'connection' => array_merge([
                     'api' => [
@@ -75,15 +78,21 @@ final class ElasticClientBuilderTest extends MockeryTestCase
                 ->setApiKey('myId', 'myKey'),
         ];
 
-         yield 'with selector' => [
+        yield 'with custom pool' => [
             [
-                'connection' => array_merge([
-                    'selector' => StickyRoundRobinSelector::class
-                ], self::CONNECTION)
+                'connection' => [
+                    ...self::CONNECTION,
+                    'pool' => new SimpleNodePool(new RoundRobin(), new ElasticsearchResurrect())
+                ]
             ],
             ClientBuilder::create()
                 ->setHosts([self::CONNECTION])
-                ->setSelector(StickyRoundRobinSelector::class),
+                ->setNodePool(
+                    new SimpleNodePool(
+                        new RoundRobin(),
+                        new ElasticsearchResurrect()
+                    )
+                ),
         ];
 
         yield 'with additional connections' => [

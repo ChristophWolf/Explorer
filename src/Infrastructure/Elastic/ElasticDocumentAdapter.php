@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace JeroenG\Explorer\Infrastructure\Elastic;
 
-use Elasticsearch\Client;
-use Elasticsearch\Common\Exceptions\Missing404Exception;
+use Elastic\Elasticsearch\Client;
+use Elastic\Elasticsearch\Exception\ElasticsearchException;
+use Elastic\Elasticsearch\Response\Elasticsearch;
+use Http\Promise\Promise;
 use JeroenG\Explorer\Application\DocumentAdapterInterface;
 use JeroenG\Explorer\Application\Operations\Bulk\BulkOperationInterface;
 use JeroenG\Explorer\Application\Results;
@@ -18,14 +20,14 @@ final class ElasticDocumentAdapter implements DocumentAdapterInterface
     ) {
     }
 
-    public function bulk(BulkOperationInterface $command): callable|array
+    public function bulk(BulkOperationInterface $command): Elasticsearch | Promise
     {
         return $this->client->bulk([
             'body' => $command->build(),
         ]);
     }
 
-    public function update(string $index, $id, array $data): callable|array
+    public function update(string $index, $id, array $data): Elasticsearch | Promise
     {
         return $this->client->index([
             'index' => $index,
@@ -41,7 +43,9 @@ final class ElasticDocumentAdapter implements DocumentAdapterInterface
                 'index' => $index,
                 'id' => $id
             ]);
-        } catch (Missing404Exception) {}
+        } catch (ElasticsearchException $e) {
+            $this->client->getLogger()->error("Failed to delete document", ['index' => $index, 'id' => $id, 'reason' => $e->getMessage()]);
+        }
     }
 
     public function search(SearchCommandInterface $command): Results

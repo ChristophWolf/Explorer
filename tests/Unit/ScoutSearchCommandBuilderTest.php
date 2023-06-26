@@ -26,7 +26,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
 
     private const TEST_SEARCHABLE_FIELDS = [':field1:', ':field2:'];
 
-    public function test_it_wraps_the_default_scout_builder(): void
+    public function testWrapScoutBuilder(): void
     {
         $builder = Mockery::mock(Builder::class);
         $builder->model = Mockery::mock(Model::class);
@@ -38,14 +38,14 @@ class ScoutSearchCommandBuilderTest extends TestCase
         self::assertSame(self::TEST_INDEX, $subject->getIndex());
     }
 
-    public function test_it_throws_on_null_index(): void
+    public function testThrowExceptionOnNullIndex(): void
     {
         $builder = new ScoutSearchCommandBuilder();
         $this->expectException(InvalidArgumentException::class);
         $builder->getIndex();
     }
 
-    public function test_it_can_get_the_index_from_the_scout_builder(): void
+    public function testGetIndexFromScoutBuilder(): void
     {
         $builder = Mockery::mock(Builder::class);
         $builder->model = Mockery::mock(Model::class);
@@ -57,7 +57,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
         self::assertSame(self::TEST_INDEX, $subject->getIndex());
     }
 
-    public function test_it_gets_searchable_fields(): void
+    public function testGetSearchableFields(): void
     {
         $builder = Mockery::mock(Builder::class);
         $builder->model = Mockery::mock(Model::class, SearchableFields::class);
@@ -71,7 +71,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
     }
 
     /** @dataProvider buildCommandProvider */
-    public function test_it_sets_data_based_on_the_scout_builder(string $method, mixed $expected): void
+    public function testSetDataFromScoutBuilder(string $method, mixed $expected): void
     {
         $builder = Mockery::mock(Builder::class);
         $builder->index = self::TEST_INDEX;
@@ -87,7 +87,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
     }
 
     /** @dataProvider buildCommandProvider */
-    public function test_it_works_with_setters_and_getters(string $method, mixed $expected): void
+    public function testGettersAndSetters(string $method, mixed $expected): void
     {
         $command = new ScoutSearchCommandBuilder();
 
@@ -113,7 +113,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
         ];
     }
 
-    public function test_it_can_set_the_sort_order(): void
+    public function testSetSortOrder(): void
     {
         $command = new ScoutSearchCommandBuilder();
 
@@ -140,7 +140,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
         $command->setSort([new Sort('id', 'invalid')]);
     }
 
-    public function test_it_only_accepts_sort_classes(): void
+    public function testAcceptOnlySortClasses(): void
     {
         $command = new ScoutSearchCommandBuilder();
 
@@ -150,7 +150,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
         $command->setSort(['not' => 'a class']);
     }
 
-    public function test_it_accepts_fields(): void
+    public function testSetFields(): void
     {
         $input = ['specific.field', '*.length'];
         $command = new ScoutSearchCommandBuilder();
@@ -168,7 +168,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
         self::assertSame([], $command->getFields());
     }
 
-    public function test_it_can_get_the_sorting_from_the_scout_builder(): void
+    public function testGetSort(): void
     {
         $builder = Mockery::mock(Builder::class);
         $builder->model = Mockery::mock(Model::class);
@@ -181,7 +181,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
         self::assertSame([['id' => 'asc']], $subject->getSort());
     }
 
-    public function test_it_can_get_the_fields_from_scout_builder(): void
+    public function testGetFieldsFromScoutBuilder(): void
     {
         $builder = Mockery::mock(Builder::class);
         $builder->model = Mockery::mock(Model::class);
@@ -195,7 +195,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
         self::assertSame($input, $subject->getFields());
     }
 
-    public function test_it_can_get_a_limited_size_of_results(): void
+    public function testSetLimit(): void
     {
         $builder = Mockery::mock(Builder::class);
         $builder->model = Mockery::mock(Model::class);
@@ -213,7 +213,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
         self::assertEquals($expected, $query);
     }
 
-    public function test_it_accepts_a_custom_compound(): void
+    public function testCustomCompound(): void
     {
         $command = new ScoutSearchCommandBuilder();
         $compound = new BoolQuery();
@@ -223,7 +223,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
         self::assertSame($compound, $command->getBoolQuery());
     }
 
-    public function test_it_accepts_minimum_should_match(): void
+    public function testAcceptMinimumMatch(): void
     {
         $subject = new ScoutSearchCommandBuilder();
 
@@ -238,7 +238,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
         self::assertEquals($expectedQuery, $query);
     }
 
-    public function test_it_wraps_with_a_custom_compound(): void
+    public function testWrapsWithCustomCompound(): void
     {
         $compound = Mockery::mock(BoolQuery::class);
         $builder = Mockery::mock(Builder::class);
@@ -251,7 +251,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
         self::assertSame($compound, $subject->getBoolQuery());
     }
 
-    public function test_it_has_bool_query_as_default_compound(): void
+    public function testDefaultBoolQueryCompound(): void
     {
         $builder = Mockery::mock(Builder::class);
         $builder->model = Mockery::mock(Model::class);
@@ -262,7 +262,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
         self::assertInstanceOf(BoolQuery::class, $subject->getBoolQuery());
     }
 
-    public function test_it_builds_query(): void
+    public function testBuildQuery(): void
     {
         $subject = new ScoutSearchCommandBuilder();
 
@@ -271,7 +271,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
         self::assertEquals(['query' => ['bool' => ['must' => [], 'should' => [], 'filter' => []]]], $query);
     }
 
-    public function test_it_builds_query_with_input(): void
+    public function testBuildQueryWithInput(): void
     {
         $subject = new ScoutSearchCommandBuilder();
         $sort = new Sort('sortfield', Sort::DESCENDING);
@@ -295,7 +295,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
         self::assertEquals($expectedQuery, $query);
     }
 
-    public function test_it_adds_scout_properties_to_boolquery(): void
+    public function testAddScoutPropertiesToBoolQuery(): void
     {
         $boolQuery = Mockery::mock(BoolQuery::class);
         $subject = new ScoutSearchCommandBuilder();
@@ -339,7 +339,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
         self::assertSame([ 'query' => $returnQuery ], $query);
     }
 
-    public function test_it_builds_query_with_aggregations(): void
+    public function testBuildQueryWithAggregations(): void
     {
         $subject = new ScoutSearchCommandBuilder();
         $aggregation = new TermsAggregation(':field:');
@@ -356,7 +356,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
         self::assertEquals($expectedQuery, $query);
     }
 
-    public function test_it_builds_query_with_query_property(): void
+    public function testBuildQueryWithQueryProperty(): void
     {
         $subject = new ScoutSearchCommandBuilder();
         $queryProperty = SourceFilter::empty()->include('*');
@@ -373,7 +373,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
         self::assertEquals($expectedQuery, $query);
     }
 
-    public function test_it_wraps_scout_builder_aggregations(): void
+    public function testWrapScoutBuilderAggregations(): void
     {
         $builder = Mockery::mock(Builder::class);
         $builder->model = Mockery::mock(Model::class);
@@ -387,7 +387,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
         self::assertSame($input, $subject->getAggregations());
     }
 
-    public function test_it_wraps_scout_builder_minimum_should_match(): void
+    public function testWrapScoutBuilderMinimumShouldMatch(): void
     {
         $builder = Mockery::mock(Builder::class);
         $builder->model = Mockery::mock(Model::class);
@@ -401,7 +401,7 @@ class ScoutSearchCommandBuilderTest extends TestCase
         self::assertSame($minimumShouldMatch, $subject->getMinimumShouldMatch());
     }
 
-    public function test_it_wraps_scout_builder_query_properties(): void
+    public function testWrapScoutBuilderQueryProperties(): void
     {
         $builder = Mockery::mock(Builder::class);
         $builder->queryProperties = [SourceFilter::empty()->exclude('*.id')];
@@ -413,13 +413,13 @@ class ScoutSearchCommandBuilderTest extends TestCase
         self::assertSame($builder->queryProperties, $subject->getQueryProperties());
     }
 
-    public function test_it_call_builder_callback(): void
+    public function testCallBuilderCallback(): void
     {
         $builder = Mockery::mock(Builder::class);
         $builder->model = Mockery::mock(Model::class);
         $builder->index = self::TEST_INDEX;
-        $limit  = rand(1, 1000);
-        $offset = rand(1, 1000);
+        $limit  = random_int(1, 1000);
+        $offset = random_int(1, 1000);
 
         $builder->callback = function (ScoutSearchCommandBuilder $builder) use ($limit, $offset){
             $builder->setLimit($limit);
