@@ -17,7 +17,7 @@ final class ElasticClientBuilderTest extends MockeryTestCase
 {
     private const CLOUD_ID = 'staging:dXMtZWFzdC0xLmF3cy5mb3VuZC5pbyRjZWM2ZjI2MWE3NGJmMjRjZTMzYmI4ODExYjg0Mjk0ZiRjNmMyY2E2ZDA0MjI0OWFmMGNjN2Q3YTllOTYyNTc0Mw';
 
-    private const CONNECTION = ['host' => 'example.com', 'port' => '9222', 'scheme' => 'https'];
+    private const CONNECTION = 'https://example.com:9222';
 
     /** @dataProvider provideClientConfigs */
     public function testCreateClientWithConfig(array $config, ClientBuilder $expectedBuilder): void
@@ -34,7 +34,11 @@ final class ElasticClientBuilderTest extends MockeryTestCase
     {
         yield 'simple host' => [
             [
-                'connection' => self::CONNECTION
+                'connection' => [
+                    'hosts' => [
+                        self::CONNECTION
+                    ]
+                ]
             ],
             ClientBuilder::create()
                 ->setHosts([self::CONNECTION])
@@ -57,7 +61,7 @@ final class ElasticClientBuilderTest extends MockeryTestCase
                         'username' => 'myName',
                         'password' => 'myPassword'
                     ]
-                ], self::CONNECTION)
+                ], ['hosts' => [self::CONNECTION]])
             ],
             ClientBuilder::create()
                 ->setHosts([self::CONNECTION])
@@ -71,7 +75,7 @@ final class ElasticClientBuilderTest extends MockeryTestCase
                         'id' => 'myId',
                         'key' => 'myKey'
                     ]
-                ], self::CONNECTION)
+                ], ['hosts' => [self::CONNECTION]])
             ],
             ClientBuilder::create()
                 ->setHosts([self::CONNECTION])
@@ -81,7 +85,7 @@ final class ElasticClientBuilderTest extends MockeryTestCase
         yield 'with custom pool' => [
             [
                 'connection' => [
-                    ...self::CONNECTION,
+                    'hosts' => [self::CONNECTION],
                     'pool' => new SimpleNodePool(new RoundRobin(), new ElasticsearchResurrect())
                 ]
             ],
@@ -97,7 +101,7 @@ final class ElasticClientBuilderTest extends MockeryTestCase
 
         yield 'with additional connections' => [
             [
-                'connection' => self::CONNECTION,
+                'connection' => ['hosts' => [self::CONNECTION]],
                 'additionalConnections' => [
                     self::CONNECTION,
                     self::CONNECTION,
@@ -111,7 +115,7 @@ final class ElasticClientBuilderTest extends MockeryTestCase
             [
                 'connection' => array_merge([
                     'ssl' => ['verify' => false]
-                ], self::CONNECTION)
+                ], ['hosts' => [self::CONNECTION]])
             ],
             ClientBuilder::create()
                 ->setHosts([self::CONNECTION])
@@ -122,7 +126,7 @@ final class ElasticClientBuilderTest extends MockeryTestCase
             [
                 'connection' => array_merge([
                     'ssl' => ['verify' => true]
-                ], self::CONNECTION)
+                ],['hosts' => [self::CONNECTION]])
             ],
             ClientBuilder::create()
                 ->setHosts([self::CONNECTION])
@@ -136,7 +140,7 @@ final class ElasticClientBuilderTest extends MockeryTestCase
                         'cert' => ['path/to/cert.pem', 'passphrase'],
                         'key' => ['path/to/key.pem', 'passphrase'],
                     ]
-                ], self::CONNECTION)
+                ], ['hosts' => [self::CONNECTION]])
             ],
             ClientBuilder::create()
                 ->setHosts([self::CONNECTION])
@@ -151,7 +155,7 @@ final class ElasticClientBuilderTest extends MockeryTestCase
                         'cert' => 'path/to/cert.pem',
                         'key' => 'path/to/key.pem',
                     ]
-                ], self::CONNECTION)
+                ], ['hosts' => [self::CONNECTION]])
             ],
             ClientBuilder::create()
                 ->setHosts([self::CONNECTION])

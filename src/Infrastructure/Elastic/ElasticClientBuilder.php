@@ -16,18 +16,14 @@ final class ElasticClientBuilder
     {
         $builder = ClientBuilder::create();
 
-        $hostConnectionProperties = array_filter(
-            $config->get('explorer.connection'),
-            static fn($key) => in_array($key, self::HOST_KEYS, true),
-            ARRAY_FILTER_USE_KEY
-        );
+        $hostConnectionProperties = $config->get('explorer.connection.hosts', []);
 
-        if (!empty($hostConnectionProperties)) {
-            $builder->setHosts([$hostConnectionProperties]);
+        if (is_array($hostConnectionProperties) && !empty($hostConnectionProperties)) {
+            $builder->setHosts($hostConnectionProperties);
         }
 
         if ($config->has('explorer.additionalConnections')) {
-            $builder->setHosts([$config->get('explorer.connection'), ...$config->get('explorer.additionalConnections')]);
+            $builder->setHosts([...$config->get('explorer.connection.hosts'), ...$config->get('explorer.additionalConnections')]);
         }
         if ($config->has('explorer.connection.pool') && $config->get('explorer.connection.pool') instanceof NodePoolInterface) {
             $builder->setNodePool($config->get('explorer.connection.pool'));
