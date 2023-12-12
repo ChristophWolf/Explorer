@@ -20,29 +20,29 @@ final class ElasticDocumentAdapter implements DocumentAdapterInterface
     ) {
     }
 
-    public function bulk(BulkOperationInterface $command): Elasticsearch | Promise
+    public function bulk(BulkOperationInterface $command): Elasticsearch|Promise
     {
-        return $this->client->bulk([
+        return $this->client->bulk($this->withSettings([
             'body' => $command->build(),
-        ]);
+        ]));
     }
 
-    public function update(string $index, $id, array $data): Elasticsearch | Promise
+    public function update(string $index, $id, array $data): Elasticsearch|Promise
     {
-        return $this->client->index([
+        return $this->client->index($this->withSettings([
             'index' => $index,
             'id' => $id,
             'body' => $data,
-        ]);
+        ]));
     }
 
     public function delete(string $index, $id): void
     {
         try {
-            $this->client->delete([
+            $this->client->delete($this->withSettings([
                 'index' => $index,
-                'id' => $id
-            ]);
+                'id' => $id,
+            ]));
         } catch (ElasticsearchException $e) {
             $this->client->getLogger()->error("Failed to delete document", ['index' => $index, 'id' => $id, 'reason' => $e->getMessage()]);
         }
@@ -51,5 +51,13 @@ final class ElasticDocumentAdapter implements DocumentAdapterInterface
     public function search(SearchCommandInterface $command): Results
     {
         return (new Finder($this->client, $command))->find();
+    }
+
+    private function withSettings(array $array): array
+    {
+        if (config('explorer.wait_for_update')) {
+            $array['refresh'] = 'wait_for';
+        }
+        return $array;
     }
 }

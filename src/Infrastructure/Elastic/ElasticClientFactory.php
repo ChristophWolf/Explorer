@@ -6,7 +6,6 @@ namespace JeroenG\Explorer\Infrastructure\Elastic;
 
 use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\ClientBuilder;
-use Elastic\Elasticsearch\Response\Elasticsearch;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;

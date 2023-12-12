@@ -217,12 +217,4 @@ class ElasticEngine extends Engine
         $configuration = $this->indexConfigurationRepository->findForIndex($name);
         $this->indexAdapter->delete($configuration);
     }
-
-    public function deleteAllIndexes()
-    {
-        $configs = $this->indexConfigurationRepository->getConfigurations();
-        foreach ($configs as $config) {
-            $this->indexAdapter->delete($config);
-        }
-    }
 }

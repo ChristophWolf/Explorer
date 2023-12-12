@@ -37,4 +37,9 @@ return [
      * A model is only using index aliases if it implements the Aliased interface.
      */
     'prune_old_aliases' => true,
+
+    /**
+     * If true, waits for index updates after create, update or delete of an entry.
+     */
+    'wait_for_update' => false,
 ];
