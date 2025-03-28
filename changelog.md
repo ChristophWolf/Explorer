@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 # Added
-- Support for PHP8.3.
+- Support for PHP 8.3.
+- Support Laravel 11 & 12
+- Support Scout 11
 
 ## [3.7.0]
 
